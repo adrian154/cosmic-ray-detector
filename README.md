@@ -1,2 +1,5 @@
 # cosmic-ray-detector
-Use your DSLR to detect cosmic rays
+
+Use your DSLR to detect cosmic rays!
+
+This repo 
