@@ -3,8 +3,8 @@ const files = require("./util/files");
 const pgm = require("./util/pgm");
 const fs = require("fs");
 
-const sums = new Float64Array(fs.readFileSync("output/sums.bin")),
-      sumSquareDiffs = new Float64Array(fs.readFileSync("output/sumSquareDiffs.bin"));
+const sums = new Float64Array(fs.readFileSync("output/sums.bin").buffer),
+      sumSquareDiffs = new Float64Array(fs.readFileSync("output/sumSquareDiffs.bin").buffer);
 
 const allAnomalies = [];
 const allClusters = [];
@@ -53,12 +53,16 @@ for(const file of files) {
         const sum = sums[i], sumSquareDiff = sumSquareDiffs[i];
         const value = image.pixels[i];
 
+        // exclude dummy pixels
+        if(sum == 0 || sumSquareDiff == 0) continue;
+
         // compute sample statistics, excluding contribution of this sample
         const mean = (sum - value) / (files.length - 1);
         const stddev = Math.sqrt((sumSquareDiff - (value - sum / files.length)**2) / (files.length - 2));
         const z = (value - mean) / stddev;
 
         // anomaly detected!
+        //console.log(sum, sumSquareDiff);
         if(Math.abs(z) > config.confidenceLevel) {
             anomalies.push({
                 file,
@@ -77,8 +81,16 @@ for(const file of files) {
 
 }
 
-fs.writeFileSync("output/anomalies.json", JSON.stringify(anomalies));
-fs.writeFileSync("output/clusters.json", JSON.stringify(clusters.map(anomaly => anomalies.indexOf(anomaly))));
 
 // write anomalies to CSV for easy viewing
-fs.writeFileSync("output/anomalies.csv", "file,x,y,z,stddev,value,cluster\n" + anomalies.map(a => `${a.file},${a.x},${a.y},${a.z},${a.stddev},${a.value},${a.cluster ? clusters.indexOf(a.cluster) : ""}\n`))
+fs.writeFileSync("output/anomalies.csv", "file,x,y,z-score,stddev,value,clusterIdx,clusterSz\n" + allAnomalies.map(a => `${a.file},${a.x},${a.y},${a.z},${a.stddev},${a.value},${a.cluster ? allClusters.indexOf(a.cluster) : ""},${a.cluster?.length || ""}`).join("\n"));
+
+// convert references to indexes to prevent circular references
+for(const anomaly of allAnomalies) {
+    if(anomaly.cluster) {
+        anomaly.cluster = allClusters.indexOf(anomaly.cluster);
+    }
+}
+
+fs.writeFileSync("output/anomalies.json", JSON.stringify(allAnomalies));
+fs.writeFileSync("output/clusters.json", JSON.stringify(allClusters.map(cluster => cluster.map(anomaly => allAnomalies.indexOf(anomaly)))));

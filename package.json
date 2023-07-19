@@ -1,0 +1,22 @@
+{
+  "name": "cosmic-ray-detector",
+  "version": "1.0.0",
+  "description": "Use your DSLR to detect cosmic rays!",
+  "main": "analyze.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/adrian154/cosmic-ray-detector.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/adrian154/cosmic-ray-detector/issues"
+  },
+  "homepage": "https://github.com/adrian154/cosmic-ray-detector#readme",
+  "dependencies": {
+    "sharp": "^0.32.3"
+  }
+}
