@@ -10,7 +10,7 @@ const pgm = require("./util/pgm");
 const sharp = require("sharp");
 const fs = require("fs");
 
-const SIZE = 32,
+const SIZE = 64,
       REALSIZE = SIZE*2 + 1;
 
 const GAMMA = 1/2;
@@ -84,6 +84,7 @@ for(const file in clustersByFile) {
 
         // rescale and write
         sharp(pixels, {raw: {width: REALSIZE, height: REALSIZE, channels: 3}})
+            .resize(REALSIZE*2, REALSIZE*2, {kernel: sharp.kernel.nearest})
             .toFile(`output/clusters/${cluster.length}.${filename}.${i}.png`);
 
     }
