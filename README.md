@@ -1,6 +1,6 @@
 # cosmic-ray-detector
 
-![5x5 collage of cosmic rays](collage.png)
+![collage of cosmic rays](title.png)
 
 Use your DSLR to detect cosmic rays! [Read about it here](https://blog.bithole.dev/blogposts/cosmic-ray/)
 
