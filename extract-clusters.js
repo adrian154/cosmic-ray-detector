@@ -10,10 +10,10 @@ const pgm = require("./util/pgm");
 const sharp = require("sharp");
 const fs = require("fs");
 
-const SIZE = 64,
+const SIZE = 50,
       REALSIZE = SIZE*2 + 1;
 
-const GAMMA = 1/2;
+const GAMMA = 0.8;
 
 const sums = new Float64Array(fs.readFileSync("output/sums.bin").buffer);
 
@@ -70,7 +70,7 @@ for(const file in clustersByFile) {
                     let val = (values[y * REALSIZE + x] - min) / (max - min);
                     val = Math.min(1, Math.max(0, val));
                     val = Math.pow(val, GAMMA);
-                    const [r, g, b] = colormap.map(val, colormap.MAGMA);
+                    const [r, g, b] = colormap.map(val, colormap.AFMHOT_10US);
                     pixels[idx] = r * 255;
                     pixels[idx + 1] = g * 255;
                     pixels[idx + 2] = b * 255;
@@ -84,7 +84,7 @@ for(const file in clustersByFile) {
 
         // rescale and write
         sharp(pixels, {raw: {width: REALSIZE, height: REALSIZE, channels: 3}})
-            .resize(REALSIZE*2, REALSIZE*2, {kernel: sharp.kernel.nearest})
+            .resize(REALSIZE*3, REALSIZE*3, {kernel: sharp.kernel.nearest})
             .toFile(`output/clusters/${cluster.length}.${filename}.${i}.png`);
 
     }

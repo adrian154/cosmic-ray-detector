@@ -2,6 +2,6 @@
     "dataDir": "H:\\cosmic-ray-data\\",
     "width": 5012,
     "height": 3358,
-    "confidenceLevel": 5,
+    "confidenceLevel": 6,
     "clusteringRadius": 16
 }
