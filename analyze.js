@@ -1,10 +1,11 @@
 const config = require("./config.json");
 const files = require("./util/files");
 const pgm = require("./util/pgm");
+const path = require("path");
 const fs = require("fs");
 
-const sums = new Float64Array(fs.readFileSync("output/sums.bin").buffer),
-      sumSquareDiffs = new Float64Array(fs.readFileSync("output/sumSquareDiffs.bin").buffer);
+const sums = new Float64Array(fs.readFileSync(path.join(config.outputDir, "sums.bin")).buffer),
+      sumSquareDiffs = new Float64Array(fs.readFileSync(path.join(config.outputDir, "sumSquareDiffs.bin")).buffer);
 
 const allAnomalies = [];
 const allClusters = [];
@@ -83,7 +84,7 @@ for(const file of files) {
 
 
 // write anomalies to CSV for easy viewing
-fs.writeFileSync("output/anomalies.csv", "file,x,y,z-score,stddev,value,clusterIdx,clusterSz\n" + allAnomalies.map(a => `${a.file},${a.x},${a.y},${a.z},${a.stddev},${a.value},${a.cluster ? allClusters.indexOf(a.cluster) : ""},${a.cluster?.length || ""}`).join("\n"));
+fs.writeFileSync(path.join(config.outputDir, "anomalies.csv"), "file,x,y,z-score,stddev,value,clusterIdx,clusterSz\n" + allAnomalies.map(a => `${a.file},${a.x},${a.y},${a.z},${a.stddev},${a.value},${a.cluster ? allClusters.indexOf(a.cluster) : ""},${a.cluster?.length || ""}`).join("\n"));
 
 // convert references to indexes to prevent circular references
 for(const anomaly of allAnomalies) {
@@ -92,5 +93,5 @@ for(const anomaly of allAnomalies) {
     }
 }
 
-fs.writeFileSync("output/anomalies.json", JSON.stringify(allAnomalies));
-fs.writeFileSync("output/clusters.json", JSON.stringify(allClusters.map(cluster => cluster.map(anomaly => allAnomalies.indexOf(anomaly)))));
+fs.writeFileSync(path.join(config.outputDir, "anomalies.json"), JSON.stringify(allAnomalies));
+fs.writeFileSync(path.join(config.outputDir, "clusters.json"), JSON.stringify(allClusters.map(cluster => cluster.map(anomaly => allAnomalies.indexOf(anomaly)))));

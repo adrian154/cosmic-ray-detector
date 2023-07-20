@@ -1,6 +1,7 @@
 // read value of one pixel in every frame for demo purposes
 const pgm = require("../util/pgm");
-const file = require("../util/files").pop();
+//const file = "H:\\cosmic-ray-data\\_DSC3766.pgm";
+const file = "H:\\cosmic-ray-data\\20-Jul-2023\\_DSC3460.pgm";
 
 const values = [];
 

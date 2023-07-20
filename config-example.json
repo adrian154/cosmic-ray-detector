@@ -1,0 +1,8 @@
+{
+    "dataDir": "H:\\cosmic-ray-data\\20-Jul-2023",
+    "outputDir": "C:\\users\\oreo\\desktop\\workspace\\cosmic-ray-data\\cold",
+    "width": 5012,
+    "height": 3358,
+    "confidenceLevel": 6,
+    "clusteringRadius": 16
+}

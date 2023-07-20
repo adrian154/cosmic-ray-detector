@@ -1,6 +1,7 @@
 const config = require("./config.json");
 const files = require("./util/files");
 const pgm = require("./util/pgm");
+const path = require("path");
 const fs = require("fs");
 
 const sum = new Float64Array(config.width * config.height),
@@ -26,5 +27,5 @@ for(const file of files) {
     }
 }
 
-fs.writeFileSync("output/sums.bin", sum);
-fs.writeFileSync("output/sumSquareDiffs.bin", sumSquareDiffs);
+fs.writeFileSync(path.join(config.outputDir, "sums.bin"), sum);
+fs.writeFileSync(path.join(config.outputDir, "sumSquareDiffs.bin"), sumSquareDiffs);

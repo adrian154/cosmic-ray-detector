@@ -1,25 +1,34 @@
 // extract and render clusters into dark frame corrected images
-const anomalies = require("./output/anomalies.json"),
-      clusters = require("./output/clusters.json")
-        .filter(cluster => cluster.length > 4)
-        .map(cluster => cluster.map(idx => anomalies[idx]));
-
 const colormap = require("./util/colormap");
+const config = require("./config.json");
 const files = require("./util/files");
 const pgm = require("./util/pgm");
 const sharp = require("sharp");
+const path = require("path");
 const fs = require("fs");
+
+const anomalies = require(path.join(config.outputDir, "anomalies.json")),
+      clusters = require(path.join(config.outputDir, "clusters.json"));
+
+
+const chosenClusters = clusters
+    .filter(cluster => cluster.length > 4)
+    .map(cluster => {
+        const converted = cluster.map(idx => anomalies[idx]);
+        converted.id = clusters.indexOf(cluster);
+        return converted;
+    });
 
 const SIZE = 50,
       REALSIZE = SIZE*2 + 1;
 
-const GAMMA = 0.8;
+const GAMMA = 0.7;
 
-const sums = new Float64Array(fs.readFileSync("output/sums.bin").buffer);
+const sums = new Float64Array(fs.readFileSync(path.join(config.outputDir, "sums.bin")).buffer);
 
 // group clusters by file
 const clustersByFile = {};
-for(const cluster of clusters) {
+for(const cluster of chosenClusters) {
     const file = cluster[0].file;
     if(!clustersByFile[file]) clustersByFile[file] = [];
     clustersByFile[file].push(cluster);
@@ -28,16 +37,12 @@ for(const cluster of clusters) {
 const values = new Array(REALSIZE * REALSIZE);
 
 for(const file in clustersByFile) {
-    
-    console.log(file);
 
     // extract name
-    const filename = file.split("\\").pop(); // <---- YOU MAY WANT TO CHANGE THIS TO FORWARD SLASH 
+    const filename = path.basename(file);
     const image = pgm({path: file});
 
-    for(let i = 0; i < clustersByFile[file].length; i++) {
-    
-        const cluster = clustersByFile[file][i];
+    for(const cluster of clustersByFile[file]) {
 
         // compute centroid
         const centerX = Math.round(cluster.reduce((a,c) => a + c.x, 0) / cluster.length),
@@ -58,7 +63,7 @@ for(const file in clustersByFile) {
             }
         }
 
-        min = -20, max = 600; // <---- IF YOU DON'T WANT TO  MANUALLY TUNE THIS YOU CAN REMOVE THIS LINE
+        min = -20, max = 500; // <---- IF YOU DON'T WANT TO  MANUALLY TUNE THIS YOU CAN REMOVE THIS LINE
 
         const pixels = Buffer.alloc(REALSIZE*REALSIZE*3);
         for(let x = 0; x < REALSIZE; x++) {
@@ -85,7 +90,7 @@ for(const file in clustersByFile) {
         // rescale and write
         sharp(pixels, {raw: {width: REALSIZE, height: REALSIZE, channels: 3}})
             .resize(REALSIZE*3, REALSIZE*3, {kernel: sharp.kernel.nearest})
-            .toFile(`output/clusters/${cluster.length}.${filename}.${i}.png`);
+            .toFile(path.join(config.outputDir, "clusters", `${cluster.length}.${filename}.${cluster.id}.png`));
 
     }
 
